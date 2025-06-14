@@ -1209,14 +1209,24 @@ body {
         transition: transform 0.3s ease;
     }
 
-    /* Individual image positioning fixes */
-    .photo-frame:nth-child(3) img {
-        object-position: center 30%;
+    /* Individual image positioning fixes - UPDATED */
+    .photo-frame:nth-child(1) img {
+        object-position: center 15%;
     }
 
-    .photo-frame:nth-child(6) img {
-        object-position: center 40%;
+    .photo-frame:nth-child(2) img {
+        object-position: center 20%;
     }
+
+    .photo-frame:nth-child(3) img {
+        object-position: center 10%;
+    }
+
+    .photo-frame:nth-child(4) img {
+        object-position: center 25%;
+    }
+
+    /* Images 5 and 6 are perfect - keep default center center */
 
     /* FIXED: Mobile photo overlay - simplified approach */
     .photo-overlay {
