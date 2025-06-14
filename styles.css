@@ -246,30 +246,16 @@ body {
     left: 100%;
 }
 
-/* Console Message Display */
-.console-message {
-    background: rgba(0, 0, 0, 0.8);
-    border: 2px solid #ffd700;
-    border-radius: 15px;
-    padding: 20px;
-    margin-top: 2rem;
-    font-family: "Courier New", monospace;
-    font-size: 0.9rem;
-    color: #00ff00;
-    text-align: left;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-    opacity: 0;
-    animation: fadeInUp 2s ease 2s forwards;
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
-}
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
 
-.console-header {
-    color: #ffd700;
-    font-weight: bold;
-    margin-bottom: 10px;
-    text-align: center;
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Static Photo Gallery */
@@ -344,6 +330,12 @@ body {
     height: 400px;
 }
 
+.photo-frame:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 30px 60px rgba(255, 215, 0, 0.3);
+    border-color: #ffd700;
+}
+
 .photo-frame img {
     width: 100%;
     height: 100%;
@@ -354,6 +346,10 @@ body {
     display: block;
     padding: 0;
     box-sizing: border-box;
+}
+
+.photo-frame:hover img {
+    transform: scale(1.1);
 }
 
 .photo-overlay {
@@ -414,6 +410,16 @@ body {
     background: conic-gradient(from 0deg, transparent, rgba(255, 215, 0, 0.1), transparent);
     animation: rotate 15s linear infinite;
     opacity: 0.5;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .audio-title {
@@ -947,7 +953,6 @@ body {
     font-family: "Cinzel", serif;
     font-size: 2.5rem;
     color: #ffd700;
-    margin-bottom: 20px;
 }
 
 .footer-content p {
@@ -1040,7 +1045,7 @@ body {
     }
 }
 
-/* Optimized Particle System - Lighter */
+/* Optimized Particle System */
 #particleCanvas {
     position: fixed;
     top: 0;
@@ -1120,7 +1125,7 @@ body {
         display: none;
     }
 
-    /* HERO SECTION - COMPLETELY REBUILT */
+    /* HERO SECTION - MOBILE OPTIMIZED */
     .hero-cinematic {
         height: 100vh;
         padding: 0;
@@ -1163,18 +1168,6 @@ body {
         animation: none;
     }
 
-    .console-message {
-        margin: 1.5rem auto 0;
-        padding: 15px;
-        font-size: 0.75rem;
-        width: calc(100% - 40px);
-        max-width: none;
-        opacity: 1;
-        animation: none;
-        position: relative;
-        z-index: 10;
-    }
-
     /* SECTIONS - PROPER SPACING */
     .static-gallery,
     .timeline-section,
@@ -1188,7 +1181,7 @@ body {
         margin-bottom: 2rem;
     }
 
-    /* PHOTO GRID - COMPLETELY REBUILT */
+    /* PHOTO GRID - MOBILE OPTIMIZED - FIXED */
     .photo-grid {
         display: block;
         width: 100%;
@@ -1198,30 +1191,66 @@ body {
 
     .photo-frame {
         width: 100%;
-        height: 250px;
+        height: 280px;
         margin-bottom: 30px;
         border-radius: 15px;
         overflow: hidden;
         position: relative;
         background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 107, 107, 0.1));
         border: 2px solid rgba(255, 215, 0, 0.3);
+        cursor: pointer;
     }
 
     .photo-frame img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        object-position: center 20%;
+        object-position: center center;
+        transition: transform 0.3s ease;
     }
 
+    /* Individual image positioning fixes */
+    .photo-frame:nth-child(3) img {
+        object-position: center 30%;
+    }
+
+    .photo-frame:nth-child(6) img {
+        object-position: center 40%;
+    }
+
+    /* FIXED: Mobile photo overlay - simplified approach */
     .photo-overlay {
         position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
-        background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.3));
         padding: 15px;
+        transform: translateY(100%);
+        transition: all 0.4s ease;
+        z-index: 5;
+    }
+
+    /* Show overlay when tapped on mobile */
+    .photo-frame.mobile-active .photo-overlay {
         transform: translateY(0);
+    }
+
+    /* Ensure hover doesn't interfere on mobile */
+    @media (hover: none) and (pointer: coarse) {
+        .photo-frame:hover .photo-overlay {
+            transform: translateY(100%);
+        }
+
+        .photo-frame:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: rgba(255, 215, 0, 0.3);
+        }
+
+        .photo-frame:hover img {
+            transform: none;
+        }
     }
 
     .photo-caption {
@@ -1403,8 +1432,6 @@ body {
 }
 
 @media (max-width: 480px) {
-
-    /* Extra small mobile devices */
     .loading-text {
         font-size: 2rem;
         padding: 0 20px;
@@ -1438,11 +1465,6 @@ body {
         padding: 40px 15px;
     }
 
-    .photo-grid {
-        gap: 20px;
-        padding: 0 15px;
-    }
-
     .photo-frame {
         max-width: calc(100vw - 30px);
         min-height: 240px;
@@ -1456,98 +1478,26 @@ body {
     .photo-description {
         font-size: 0.8rem;
     }
-
-    .timeline-item {
-        margin: 60px 0;
-    }
-
-    .timeline-content {
-        padding: 20px 15px;
-    }
-
-    .timeline-content h3 {
-        font-size: 1.3rem;
-    }
-
-    .timeline-content p {
-        font-size: 0.9rem;
-    }
-
-    .holographic-card {
-        width: 100%;
-        max-width: 320px;
-        height: 250px;
-    }
-
-    .card-front,
-    .card-back {
-        padding: 20px 15px;
-    }
-
-    .card-title {
-        font-size: 1.5rem;
-    }
-
-    .card-message {
-        font-size: 0.9rem;
-    }
-
-    .card-signature {
-        font-size: 1.1rem;
-    }
-
-    .console-message {
-        font-size: 0.65rem;
-        padding: 12px;
-        margin: 1rem 5px 0;
-        max-width: calc(100vw - 10px);
-    }
-
-    .audio-player {
-        padding: 20px 10px;
-    }
-
-    .audio-title {
-        font-size: 1.5rem;
-    }
-
-    .audio-subtitle {
-        font-size: 1rem;
-    }
-
-    .audio-visualizer {
-        height: 60px;
-    }
-
-    .progress-bar {
-        width: 150px;
-    }
-
-    .special-message {
-        padding: 20px 15px;
-    }
-
-    .special-message h3 {
-        font-size: 1.4rem;
-    }
-
-    .special-message p {
-        font-size: 1rem;
-    }
-
-    .footer-content h3 {
-        font-size: 1.8rem;
-    }
-
-    .footer-content p {
-        font-size: 0.9rem;
-    }
 }
 
-/* Touch-friendly interactions */
+/* Touch-friendly interactions - UPDATED */
 @media (hover: none) and (pointer: coarse) {
+
+    /* Disable all hover effects on touch devices */
     .photo-frame:hover .photo-overlay {
-        transform: translateY(0);
+        transform: translateY(100%);
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .photo-frame:hover {
+        transform: none;
+        box-shadow: none;
+        border-color: rgba(255, 215, 0, 0.3);
+    }
+
+    .photo-frame:hover img {
+        transform: none;
     }
 
     .timeline-content:hover {
@@ -1586,10 +1536,6 @@ body {
     .hero-subtitle {
         font-size: 1.2rem;
         margin-bottom: 1.5rem;
-    }
-
-    .console-message {
-        margin-top: 1rem;
     }
 }
 

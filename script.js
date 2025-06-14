@@ -75,7 +75,29 @@ class CinematicFathersDayExperience {
 
     startExperience() {
         document.body.style.overflow = "auto"
-        this.typewriterEffect()
+
+        // On mobile, show everything immediately without animations
+        if (this.isMobile) {
+            const heroTitle = document.querySelector(".hero-title")
+            const heroSubtitle = document.querySelector(".hero-subtitle")
+            const heroButton = document.querySelector(".hero-cta")
+
+            // Make sure all elements are visible immediately
+            if (heroTitle) {
+                heroTitle.style.opacity = "1"
+                heroTitle.style.animation = "none"
+            }
+            if (heroSubtitle) {
+                heroSubtitle.style.opacity = "1"
+                heroSubtitle.style.animation = "none"
+            }
+            if (heroButton) {
+                heroButton.style.opacity = "1"
+                heroButton.style.animation = "none"
+            }
+        } else {
+            this.typewriterEffect()
+        }
     }
 
     typewriterEffect() {
@@ -152,41 +174,28 @@ class CinematicFathersDayExperience {
             vy: (Math.random() - 0.5) * 0.5,
             size: Math.random() * 3 + 1,
             opacity: Math.random() * 0.5 + 0.2,
-            color: `hsl(${Math.random() * 60 + 40}, 70%, 60%)`,
-            life: Math.random() * 100 + 100,
+            color: `hsl(${Math.random() * 60 + 30}, 70%, 60%)`,
         }
     }
 
     updateParticles() {
-        // Use for loop instead of forEach for better performance
-        for (let i = 0; i < this.particles.length; i++) {
-            const particle = this.particles[i]
+        this.particles.forEach((particle) => {
             particle.x += particle.vx
             particle.y += particle.vy
-            particle.life--
 
-            // Simplified mouse interaction
+            if (particle.x < 0 || particle.x > this.canvas.width) particle.vx *= -1
+            if (particle.y < 0 || particle.y > this.canvas.height) particle.vy *= -1
+
+            // Mouse interaction
             const dx = this.mouseX - particle.x
             const dy = this.mouseY - particle.y
-            const distance = dx * dx + dy * dy // Skip sqrt for performance
+            const distance = Math.sqrt(dx * dx + dy * dy)
 
-            if (distance < 10000) {
-                // 100px squared
-                particle.vx += dx * 0.00005
-                particle.vy += dy * 0.00005
+            if (distance < 100) {
+                particle.x -= dx * 0.01
+                particle.y -= dy * 0.01
             }
-
-            // Wrap around screen
-            if (particle.x < 0) particle.x = this.canvas.width
-            if (particle.x > this.canvas.width) particle.x = 0
-            if (particle.y < 0) particle.y = this.canvas.height
-            if (particle.y > this.canvas.height) particle.y = 0
-
-            // Regenerate particle
-            if (particle.life <= 0) {
-                this.particles[i] = this.createParticle()
-            }
-        }
+        })
     }
 
     drawParticles() {
@@ -195,12 +204,7 @@ class CinematicFathersDayExperience {
         this.particles.forEach((particle) => {
             this.ctx.beginPath()
             this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2)
-
-            const gradient = this.ctx.createRadialGradient(particle.x, particle.y, 0, particle.x, particle.y, particle.size)
-            gradient.addColorStop(0, particle.color)
-            gradient.addColorStop(1, "transparent")
-
-            this.ctx.fillStyle = gradient
+            this.ctx.fillStyle = particle.color
             this.ctx.globalAlpha = particle.opacity
             this.ctx.fill()
         })
@@ -208,453 +212,248 @@ class CinematicFathersDayExperience {
         this.ctx.globalAlpha = 1
     }
 
+    setupScrollAnimations() {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: "0px 0px -50px 0px",
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add("animate")
+                }
+            })
+        }, observerOptions)
+
+        // Observe timeline items
+        document.querySelectorAll(".timeline-item").forEach((item) => {
+            observer.observe(item)
+        })
+    }
+
+    setupInteractiveElements() {
+        // Begin Journey button
+        const beginButton = document.getElementById("beginJourney")
+        if (beginButton) {
+            beginButton.addEventListener("click", () => {
+                document.querySelector(".static-gallery").scrollIntoView({
+                    behavior: "smooth",
+                })
+            })
+        }
+
+        // Photo frame interactions - COMPLETELY FIXED FOR MOBILE
+        document.querySelectorAll(".photo-frame").forEach((frame) => {
+            if (this.isTouch) {
+                // Mobile/Touch device handling
+                frame.addEventListener("click", (e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+
+                    // Check if this frame is currently active
+                    const isActive = frame.classList.contains("mobile-active")
+
+                    // Remove active class from all frames
+                    document.querySelectorAll(".photo-frame").forEach((otherFrame) => {
+                        otherFrame.classList.remove("mobile-active")
+                    })
+
+                    // If this frame wasn't active, make it active
+                    if (!isActive) {
+                        frame.classList.add("mobile-active")
+
+                        // Auto-hide after 6 seconds
+                        setTimeout(() => {
+                            frame.classList.remove("mobile-active")
+                        }, 6000)
+                    }
+                })
+
+                // Prevent context menu on long press
+                frame.addEventListener("contextmenu", (e) => {
+                    e.preventDefault()
+                })
+            } else {
+                // Desktop hover behavior (unchanged)
+                frame.addEventListener("mouseenter", () => {
+                    // Desktop hover effects handled by CSS
+                })
+            }
+        })
+
+        // Close overlays when tapping outside on mobile
+        if (this.isTouch) {
+            document.addEventListener("click", (e) => {
+                if (!e.target.closest(".photo-frame")) {
+                    document.querySelectorAll(".photo-frame").forEach((frame) => {
+                        frame.classList.remove("mobile-active")
+                    })
+                }
+            })
+        }
+    }
+
+    setupTouchInteractions() {
+        // Prevent zoom on double tap for better UX
+        let lastTouchEnd = 0
+        document.addEventListener(
+            "touchend",
+            (event) => {
+                const now = new Date().getTime()
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault()
+                }
+                lastTouchEnd = now
+            },
+            false,
+        )
+
+        // Smooth scrolling for mobile
+        document.addEventListener(
+            "touchmove",
+            (e) => {
+                // Allow normal scrolling but prevent horizontal scroll
+                if (
+                    Math.abs(e.touches[0].clientX - e.touches[0].clientY) > Math.abs(e.touches[0].clientY - e.touches[0].clientX)
+                ) {
+                    e.preventDefault()
+                }
+            },
+            { passive: false },
+        )
+    }
+
     setupAudioPlayer() {
         const playBtn = document.getElementById("playBtn")
         const volumeSlider = document.getElementById("volumeSlider")
-        const audioVisualizer = document.getElementById("audioVisualizer")
-        const audioBars = audioVisualizer.querySelectorAll(".audio-bar")
+        const progressFill = document.getElementById("progressFill")
+        const currentTimeEl = document.getElementById("currentTime")
+        const totalTimeEl = document.getElementById("totalTime")
 
-        playBtn.addEventListener("click", () => {
-            this.toggleAudio()
-        })
+        if (playBtn) {
+            playBtn.addEventListener("click", () => {
+                this.toggleAudio()
+            })
+        }
 
-        volumeSlider.addEventListener("input", (e) => {
-            this.setVolume(e.target.value)
-        })
+        if (volumeSlider) {
+            volumeSlider.addEventListener("input", (e) => {
+                // Volume control simulation
+                console.log("Volume:", e.target.value)
+            })
+        }
 
-        // Enhanced audio visualizer animation
-        this.animateAudioBars(audioBars)
+        // Simulate audio progress
+        this.startAudioProgress()
     }
 
     toggleAudio() {
+        this.isPlaying = !this.isPlaying
         const playBtn = document.getElementById("playBtn")
         const playIcon = playBtn.querySelector(".play-icon")
         const playText = playBtn.querySelector(".play-text")
 
-        this.isPlaying = !this.isPlaying
-
         if (this.isPlaying) {
             playIcon.textContent = "⏸️"
-            playText.textContent = "Pause"
-            this.startAudioTimer()
-            this.enhanceAudioVisualization()
+            playText.textContent = "Pause Song"
+            this.animateAudioBars()
         } else {
             playIcon.textContent = "▶️"
             playText.textContent = "Play Our Song"
-            this.stopAudioTimer()
+            this.stopAudioBars()
         }
     }
 
-    setVolume(volume) {
-        // Visual feedback for volume change
-        const volumeIcon = document.querySelector(".volume-icon")
-        if (volume == 0) {
-            volumeIcon.textContent = "🔇"
-        } else if (volume < 30) {
-            volumeIcon.textContent = "🔈"
-        } else if (volume < 70) {
-            volumeIcon.textContent = "🔉"
-        } else {
-            volumeIcon.textContent = "🔊"
-        }
-    }
-
-    startAudioTimer() {
-        this.audioTimer = setInterval(() => {
-            this.currentTime++
-            if (this.currentTime >= this.totalTime) {
-                this.currentTime = 0
+    startAudioProgress() {
+        setInterval(() => {
+            if (this.isPlaying && this.currentTime < this.totalTime) {
+                this.currentTime += 1
+                this.updateAudioDisplay()
             }
-            this.updateTimeDisplay()
         }, 1000)
     }
 
-    stopAudioTimer() {
-        if (this.audioTimer) {
-            clearInterval(this.audioTimer)
-        }
-    }
-
-    updateTimeDisplay() {
+    updateAudioDisplay() {
         const currentTimeEl = document.getElementById("currentTime")
         const progressFill = document.getElementById("progressFill")
 
-        const minutes = Math.floor(this.currentTime / 60)
-        const seconds = this.currentTime % 60
-        currentTimeEl.textContent = `${minutes}:${seconds.toString().padStart(2, "0")}`
+        if (currentTimeEl) {
+            const minutes = Math.floor(this.currentTime / 60)
+            const seconds = this.currentTime % 60
+            currentTimeEl.textContent = `${minutes}:${seconds.toString().padStart(2, "0")}`
+        }
 
-        const progress = (this.currentTime / this.totalTime) * 100
-        progressFill.style.width = `${progress}%`
+        if (progressFill) {
+            const progress = (this.currentTime / this.totalTime) * 100
+            progressFill.style.width = `${progress}%`
+        }
     }
 
-    animateAudioBars(bars) {
+    animateAudioBars() {
+        const bars = document.querySelectorAll(".audio-bar")
         bars.forEach((bar, index) => {
-            const baseHeight = 15 + Math.random() * 20
-            const maxHeight = 80 + Math.random() * 40
-            const animationDuration = 0.8 + Math.random() * 0.8
-
-            bar.style.setProperty("--base-height", `${baseHeight}px`)
-            bar.style.setProperty("--max-height", `${maxHeight}px`)
-            bar.style.animationDuration = `${animationDuration}s`
+            bar.style.animationPlayState = "running"
         })
     }
 
-    enhanceAudioVisualization() {
-        const audioBars = document.querySelectorAll(".audio-bar")
-
-        if (this.isPlaying) {
-            audioBars.forEach((bar, index) => {
-                const intensity = Math.random() * 0.5 + 0.5
-                bar.style.animationDuration = `${0.5 + Math.random() * 0.5}s`
-                bar.style.transform = `scaleY(${intensity})`
-            })
-
-            setTimeout(() => {
-                if (this.isPlaying) {
-                    this.enhanceAudioVisualization()
-                }
-            }, 200)
-        } else {
-            audioBars.forEach((bar) => {
-                bar.style.transform = "scaleY(1)"
-            })
-        }
-    }
-
-    setupScrollAnimations() {
-        // Throttle scroll events
-        let ticking = false
-
-        const observer = new IntersectionObserver(
-            (entries) => {
-                if (!ticking) {
-                    requestAnimationFrame(() => {
-                        entries.forEach((entry) => {
-                            if (entry.isIntersecting) {
-                                entry.target.classList.add("animate")
-
-                                // Lighter timeline effects
-                                if (entry.target.classList.contains("timeline-item")) {
-                                    this.createTimelineEffect(entry.target)
-                                }
-                            }
-                        })
-                        ticking = false
-                    })
-                    ticking = true
-                }
-            },
-            {
-                threshold: 0.1,
-                rootMargin: "0px 0px -30px 0px",
-            },
-        )
-
-        document.querySelectorAll(".timeline-item").forEach((item) => {
-            observer.observe(item)
+    stopAudioBars() {
+        const bars = document.querySelectorAll(".audio-bar")
+        bars.forEach((bar) => {
+            bar.style.animationPlayState = "paused"
         })
-
-        // Optimize photo frame animations
-        document.querySelectorAll(".photo-frame").forEach((frame, index) => {
-            frame.style.animationDelay = `${index * 0.1}s`
-            observer.observe(frame)
-        })
-    }
-
-    createTimelineEffect(element) {
-        const icon = element.querySelector(".timeline-icon")
-        if (icon) {
-            // Create ripple effect
-            const ripple = document.createElement("div")
-            ripple.style.cssText = `
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 0;
-          height: 0;
-          border: 2px solid #ffd700;
-          border-radius: 50%;
-          transform: translate(-50%, -50%);
-          animation: rippleEffect 2s ease-out;
-        `
-            icon.appendChild(ripple)
-            setTimeout(() => ripple.remove(), 2000)
-        }
-    }
-
-    setupInteractiveElements() {
-        // Hero button
-        document.getElementById("beginJourney").addEventListener("click", () => {
-            document.querySelector(".static-gallery").scrollIntoView({
-                behavior: "smooth",
-            })
-            this.createMagicalTransition()
-        })
-
-        // Photo frame interactions
-        document.querySelectorAll(".photo-frame").forEach((frame) => {
-            frame.addEventListener("click", () => {
-                this.createPhotoClickEffect(frame)
-            })
-        })
-
-        // Holographic card
-        const holoCard = document.querySelector(".holographic-card")
-        holoCard.addEventListener("mouseenter", () => {
-            this.createHolographicEffect(holoCard)
-        })
-    }
-
-    createMagicalTransition() {
-        // Create magical particles
-        for (let i = 0; i < 30; i++) {
-            const particle = document.createElement("div")
-            particle.innerHTML = ["✨", "💫", "⭐", "🌟", "🎵", "🎶"][Math.floor(Math.random() * 6)]
-            particle.style.position = "fixed"
-            particle.style.left = Math.random() * window.innerWidth + "px"
-            particle.style.top = window.innerHeight + "px"
-            particle.style.fontSize = "20px"
-            particle.style.pointerEvents = "none"
-            particle.style.zIndex = "9999"
-            particle.style.animation = `magicalFloat ${3 + Math.random() * 2}s ease-out forwards`
-
-            document.body.appendChild(particle)
-            setTimeout(() => particle.remove(), 5000)
-        }
-    }
-
-    createPhotoClickEffect(frame) {
-        const rect = frame.getBoundingClientRect()
-
-        // Create heart burst
-        for (let i = 0; i < 8; i++) {
-            const heart = document.createElement("div")
-            heart.innerHTML = "💖"
-            heart.style.position = "fixed"
-            heart.style.left = rect.left + rect.width / 2 + "px"
-            heart.style.top = rect.top + rect.height / 2 + "px"
-            heart.style.fontSize = "20px"
-            heart.style.pointerEvents = "none"
-            heart.style.zIndex = "9999"
-
-            const angle = (Math.PI * 2 * i) / 8
-            const distance = 80 + Math.random() * 40
-            const endX = Math.cos(angle) * distance
-            const endY = Math.sin(angle) * distance
-
-            heart.style.setProperty("--endX", endX + "px")
-            heart.style.setProperty("--endY", endY + "px")
-            heart.style.animation = "heartBurst 1.5s ease-out forwards"
-
-            document.body.appendChild(heart)
-            setTimeout(() => heart.remove(), 1500)
-        }
-    }
-
-    createHolographicEffect(element) {
-        const rect = element.getBoundingClientRect()
-
-        for (let i = 0; i < 8; i++) {
-            const beam = document.createElement("div")
-            beam.style.cssText = `
-          position: fixed;
-          left: ${rect.left + Math.random() * rect.width}px;
-          top: ${rect.top + Math.random() * rect.height}px;
-          width: 2px;
-          height: 40px;
-          background: linear-gradient(to bottom, #4ecdc4, transparent);
-          animation: holoBeam 1s ease-out forwards;
-          pointer-events: none;
-          z-index: 9999;
-        `
-            document.body.appendChild(beam)
-            setTimeout(() => beam.remove(), 1000)
-        }
     }
 
     createFloatingHearts() {
         const heartsContainer = document.getElementById("floatingHearts")
+        const heartEmojis = ["💖", "💕", "💗", "💝", "❤️", "🧡", "💛", "💚", "💙", "💜"]
 
-        // Reduce frequency significantly on mobile and limit number of hearts
-        const interval = this.isMobile ? 8000 : 4000 // Longer interval on mobile
-        const maxHearts = this.isMobile ? 3 : 8 // Fewer hearts on mobile
+        // Reduce frequency on mobile
+        const heartInterval = this.isMobile ? 8000 : 4000
 
         setInterval(() => {
-            const existingHearts = heartsContainer.children.length
-            if (existingHearts < maxHearts) {
+            if (heartsContainer) {
                 const heart = document.createElement("div")
                 heart.className = "floating-heart"
-                heart.innerHTML = ["💖", "💕", "💗", "💝", "❤️"][Math.floor(Math.random() * 5)]
+                heart.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)]
                 heart.style.left = Math.random() * 100 + "%"
-                heart.style.animationDuration = Math.random() * 2 + (this.isMobile ? 8 : 6) + "s"
-                heart.style.animationDelay = Math.random() * 1 + "s"
+                heart.style.animationDuration = Math.random() * 6 + 8 + "s"
+                heart.style.fontSize = Math.random() * 1.5 + 1 + "rem"
 
                 heartsContainer.appendChild(heart)
 
-                setTimeout(
-                    () => {
-                        if (heart.parentNode) {
-                            heart.remove()
-                        }
-                    },
-                    this.isMobile ? 10000 : 8000,
-                )
+                // Remove heart after animation
+                setTimeout(() => {
+                    if (heart.parentNode) {
+                        heart.parentNode.removeChild(heart)
+                    }
+                }, 12000)
             }
-        }, interval)
+        }, heartInterval)
     }
 
     addSparkleEffect(element) {
-        const rect = element.getBoundingClientRect()
+        // Add sparkle animation to element
+        element.style.textShadow = "0 0 20px #ffd700, 0 0 40px #ffd700, 0 0 60px #ffd700"
 
-        for (let i = 0; i < 12; i++) {
-            const sparkle = document.createElement("div")
-            sparkle.innerHTML = "✨"
-            sparkle.style.position = "fixed"
-            sparkle.style.left = rect.left + Math.random() * rect.width + "px"
-            sparkle.style.top = rect.top + Math.random() * rect.height + "px"
-            sparkle.style.fontSize = "16px"
-            sparkle.style.pointerEvents = "none"
-            sparkle.style.zIndex = "9999"
-            sparkle.style.animation = "sparkleEffect 2s ease-out forwards"
-
-            document.body.appendChild(sparkle)
-            setTimeout(() => sparkle.remove(), 2000)
-        }
+        setTimeout(() => {
+            element.style.textShadow = "0 0 50px rgba(255, 215, 0, 0.5)"
+        }, 2000)
     }
 
     startAnimationLoop() {
-        let lastTime = 0
-        const targetFPS = 30 // Reduce from 60fps to 30fps for better performance
-        const frameInterval = 1000 / targetFPS
-
-        const animate = (currentTime) => {
-            if (currentTime - lastTime >= frameInterval) {
+        const animate = () => {
+            if (!this.isMobile) {
                 this.updateParticles()
                 this.drawParticles()
-                lastTime = currentTime
             }
             requestAnimationFrame(animate)
         }
-        animate(0)
-    }
-
-    setupTouchInteractions() {
-        // Touch-friendly photo interactions
-        document.querySelectorAll(".photo-frame").forEach((frame) => {
-            let touchStartTime = 0
-
-            frame.addEventListener("touchstart", (e) => {
-                touchStartTime = Date.now()
-                frame.classList.add("touch-active")
-            })
-
-            frame.addEventListener("touchend", (e) => {
-                const touchDuration = Date.now() - touchStartTime
-                if (touchDuration < 500) {
-                    // Quick tap
-                    this.createPhotoClickEffect(frame)
-                }
-                frame.classList.remove("touch-active")
-            })
-        })
-
-        // Touch-friendly timeline interactions
-        document.querySelectorAll(".timeline-item").forEach((item) => {
-            item.addEventListener("touchstart", () => {
-                item.classList.add("touch-highlight")
-            })
-
-            item.addEventListener("touchend", () => {
-                setTimeout(() => {
-                    item.classList.remove("touch-highlight")
-                }, 300)
-            })
-        })
-
-        // Prevent zoom on double tap for specific elements
-        document.querySelectorAll(".hero-cta, .play-btn, .photo-frame").forEach((element) => {
-            element.addEventListener("touchend", (e) => {
-                e.preventDefault()
-            })
-        })
+        animate()
     }
 }
 
-// Add additional CSS animations
-const additionalStyles = `
-      @keyframes heartBurst {
-          0% {
-              transform: translate(0, 0) scale(1);
-              opacity: 1;
-          }
-          100% {
-              transform: translate(var(--endX), var(--endY)) scale(0);
-              opacity: 0;
-          }
-      }
-  
-      @keyframes rippleEffect {
-          0% {
-              width: 0;
-              height: 0;
-              opacity: 1;
-          }
-          100% {
-              width: 160px;
-              height: 160px;
-              opacity: 0;
-          }
-      }
-  
-      @keyframes magicalFloat {
-          0% {
-              transform: translateY(0) rotate(0deg);
-              opacity: 0;
-          }
-          20% {
-              opacity: 1;
-          }
-          80% {
-              opacity: 1;
-          }
-          100% {
-              transform: translateY(-100vh) rotate(360deg);
-              opacity: 0;
-          }
-      }
-  
-      @keyframes holoBeam {
-          0% {
-              opacity: 0;
-              transform: translateY(0) scaleY(0);
-          }
-          50% {
-              opacity: 1;
-              transform: translateY(-20px) scaleY(1);
-          }
-          100% {
-              opacity: 0;
-              transform: translateY(-40px) scaleY(0);
-          }
-      }
-  
-      @keyframes sparkleEffect {
-          0% {
-              transform: scale(0) rotate(0deg);
-              opacity: 1;
-          }
-          100% {
-              transform: scale(1) rotate(180deg);
-              opacity: 0;
-          }
-      }
-  `
-
-const styleSheet = document.createElement("style")
-styleSheet.textContent = additionalStyles
-document.head.appendChild(styleSheet)
-
-// Initialize when DOM is loaded
+// Initialize the experience when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
     new CinematicFathersDayExperience()
 })
