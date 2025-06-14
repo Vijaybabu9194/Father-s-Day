@@ -808,7 +808,7 @@ body {
 
 .holographic-card {
     width: 500px;
-    height: 350px;
+    height: 420px;
     perspective: 1000px;
     cursor: pointer;
     margin-bottom: 3rem;
@@ -840,7 +840,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 30px 25px;
+    padding: 35px 30px;
     box-sizing: border-box;
 }
 
@@ -872,7 +872,7 @@ body {
     line-height: 1.6;
     color: rgba(255, 255, 255, 0.9);
     text-align: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     padding: 0 10px;
 }
 
@@ -1350,229 +1350,25 @@ body {
         width: 180px;
     }
 
-    /* HOLOGRAPHIC CARD - MOBILE */
+    /* HOLOGRAPHIC CARD - MOBILE - FIXED */
     .holographic-card {
         width: 100%;
-        max-width: 320px;
-        height: 240px;
+        max-width: 350px;
+        height: 320px;
         margin-bottom: 2rem;
     }
 
     .card-front,
     .card-back {
-        padding: 20px 15px;
+        padding: 25px 20px;
     }
 
     .card-title {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         margin-bottom: 1rem;
     }
 
     .card-message {
-        font-size: 0.9rem;
-        line-height: 1.4;
-        padding: 0;
-    }
-
-    .card-signature {
-        font-size: 1rem;
-        margin-top: 0.5rem;
-    }
-
-    /* SPECIAL MESSAGE - MOBILE */
-    .special-message {
-        padding: 20px 15px;
-        margin: 0;
-        width: 100%;
-    }
-
-    .special-message h3 {
-        font-size: 1.4rem;
-        margin-bottom: 15px;
-    }
-
-    .special-message p {
-        font-size: 1rem;
-        line-height: 1.6;
-        margin-bottom: 10px;
-    }
-
-    .message-features {
-        grid-template-columns: 1fr;
-        gap: 12px;
-        margin-top: 20px;
-    }
-
-    .feature-item {
-        padding: 12px;
-    }
-
-    .feature-icon {
-        font-size: 1.3rem;
-        margin-bottom: 8px;
-    }
-
-    .feature-text {
-        font-size: 0.8rem;
-    }
-
-    /* FOOTER - MOBILE */
-    .footer {
-        padding: 30px 20px;
-    }
-
-    .footer-content h3 {
-        font-size: 1.8rem;
-        margin-bottom: 15px;
-    }
-
-    .footer-content p {
-        font-size: 0.9rem;
-        margin-bottom: 8px;
-    }
-
-    .footer-hearts {
-        gap: 12px;
-        margin-top: 20px;
-    }
-
-    .footer-hearts span {
-        font-size: 1.3rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .loading-text {
-        font-size: 2rem;
-        padding: 0 20px;
-    }
-
-    .loading-bar {
-        width: 250px;
-    }
-
-    .hero-title {
-        font-size: clamp(2rem, 7vw, 3rem);
-    }
-
-    .hero-subtitle {
-        font-size: clamp(1rem, 3.5vw, 1.4rem);
-    }
-
-    .hero-cta {
-        padding: 12px 25px;
-        font-size: 1rem;
-    }
-
-    .section-title {
-        font-size: 1.8rem;
-    }
-
-    .static-gallery,
-    .timeline-section,
-    .message-section,
-    .audio-section {
-        padding: 40px 15px;
-    }
-
-    .photo-frame {
-        max-width: calc(100vw - 30px);
-        min-height: 240px;
-        height: 280px;
-    }
-
-    .photo-caption {
-        font-size: 1rem;
-    }
-
-    .photo-description {
-        font-size: 0.8rem;
-    }
-}
-
-/* Touch-friendly interactions - UPDATED */
-@media (hover: none) and (pointer: coarse) {
-
-    /* Disable all hover effects on touch devices */
-    .photo-frame:hover .photo-overlay {
-        transform: translateY(100%);
-        opacity: 0;
-        visibility: hidden;
-    }
-
-    .photo-frame:hover {
-        transform: none;
-        box-shadow: none;
-        border-color: rgba(255, 215, 0, 0.3);
-    }
-
-    .photo-frame:hover img {
-        transform: none;
-    }
-
-    .timeline-content:hover {
-        transform: none;
-    }
-
-    .feature-item:hover {
-        transform: none;
-    }
-
-    .hero-cta:hover {
-        transform: none;
-    }
-
-    .play-btn:hover {
-        transform: none;
-    }
-}
-
-/* Landscape mobile orientation */
-@media (max-width: 768px) and (orientation: landscape) {
-    .hero-cinematic {
-        height: 100vh;
-        padding: 20px 0;
-    }
-
-    .hero-content {
-        max-width: 100%;
-    }
-
-    .hero-title {
-        font-size: clamp(2rem, 4vw, 3rem);
-        margin-bottom: 1rem;
-    }
-
-    .hero-subtitle {
-        font-size: 1.2rem;
-        margin-bottom: 1.5rem;
-    }
-}
-
-/* High DPI displays */
-@media (-webkit-min-device-pixel-ratio: 2),
-(min-resolution: 192dpi) {
-    .photo-frame img {
-        image-rendering: -webkit-optimize-contrast;
-        image-rendering: crisp-edges;
-    }
-}
-
-/* Reduce motion for accessibility */
-@media (prefers-reduced-motion: reduce) {
-
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-
-    .floating-heart,
-    .audio-bar,
-    .timeline-icon,
-    .footer-hearts span {
-        animation: none !important;
+        font-size: 0.85rem;
     }
 }
