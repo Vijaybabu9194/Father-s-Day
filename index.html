@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dad - My Hero's Journey ✨</title>
+    <link rel="stylesheet" href="styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Dancing+Script:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-text">Creating Magic for Dad...</div>
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
+        </div>
+    </div>
+
+    <!-- Floating Hearts -->
+    <div class="floating-hearts" id="floatingHearts"></div>
+
+    <!-- Particle Canvas -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- Hero Section -->
+    <section class="hero-cinematic">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">DAD</h1>
+            <p class="hero-subtitle">My Hero, My Inspiration, My Everything</p>
+            <button class="hero-cta" id="beginJourney">Begin Our Journey</button>
+
+            
+        </div>
+    </section>
+
+    <!-- Static Photo Gallery -->
+    <section class="static-gallery">
+        <h2 class="section-title">Our Precious Memories</h2>
+        <div class="photo-grid">
+
+            <div class="photo-frame">
+                <img src="/Images/MomDad.jpeg" alt="Dad and Mom together">
+                <div class="photo-overlay">
+                    <div class="photo-caption">Love Story of a Lifetime</div>
+                    <div class="photo-description">Dad and Mom - a journey of love, partnership, and building a
+                        beautiful family together through all of life's adventures</div>
+                </div>
+            </div>
+            <div class="photo-frame">
+                <img src="/Images/Three.jpeg" alt="Dad with me and my sister">
+                <div class="photo-overlay">
+                    <div class="photo-caption">Our Beautiful Family</div>
+                    <div class="photo-description">Dad, me, and my sister - the three musketeers who share endless
+                        laughter and unconditional love</div>
+                </div>
+            </div>
+
+            
+
+            <div class="photo-frame">
+                <img src="/Images/Daddy.jpeg" alt="Dad traveling and exploring">
+                <div class="photo-overlay">
+                    <div class="photo-caption">The Wanderlust Gene</div>
+                    <div class="photo-description">Dad's love for traveling and exploring new places - a passion he
+                        passed down to me, creating our shared love for adventure</div>
+                </div>
+            </div>
+
+            <div class="photo-frame">
+                <img src="/Images/Family.jpeg" alt="Family vacation memories">
+                <div class="photo-overlay">
+                    <div class="photo-caption">Adventures Together</div>
+                    <div class="photo-description">Every family trip was a new chapter in our story, filled with
+                        discoveries and memories that last forever</div>
+                </div>
+            </div>
+
+            <div class="photo-frame">
+                <img src="/Images/Both.jpeg" alt="Dad's wisdom and guidance">
+                <div class="photo-overlay">
+                    <div class="photo-caption">Life's Greatest Teacher</div>
+                    <div class="photo-description">Dad teaching us that life is about the journey, not the destination -
+                        wisdom that guides us every day</div>
+                </div>
+            </div>
+
+            <div class="photo-frame">
+                <img src="/Images/Family2.jpeg" alt="Family moments of joy">
+                <div class="photo-overlay">
+                    <div class="photo-caption">Pure Joy & Happiness</div>
+                    <div class="photo-description">The moments that matter most - Dad's smile lighting up our world and
+                        filling our hearts with pure happiness</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Audio Visualizer Section -->
+    <section class="audio-section">
+        <h2 class="section-title">A Song for Dad</h2>
+        <div class="audio-player">
+            <h3 class="audio-title">🎵 The Soundtrack of Our Beautiful Journey 🎵</h3>
+            <p class="audio-subtitle">Every memory has its melody, every moment its rhythm</p>
+
+            <div class="audio-controls">
+                <button class="play-btn" id="playBtn">
+                    <span class="play-icon">▶️</span>
+                    <span class="play-text">Play Our Song</span>
+                </button>
+                <div class="volume-control">
+                    <span class="volume-icon">🔊</span>
+                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="70">
+                </div>
+            </div>
+
+            <div class="audio-visualizer" id="audioVisualizer">
+                <div class="audio-bar"></div>
+                <div class="audio-bar"></div>
+                <div class="audio-bar"></div>
+                <div class="audio-bar"></div>
+                <div class="audio-bar"></div>
+                <div class="audio-bar"></div>
+                <div class="audio-bar"></div>
+                <div class="audio-bar"></div>
+                <div class="audio-bar"></div>
+                <div class="audio-bar"></div>
+                <div class="audio-bar"></div>
+                <div class="audio-bar"></div>
+                <div class="audio-bar"></div>
+                <div class="audio-bar"></div>
+                <div class="audio-bar"></div>
+                <div class="audio-bar"></div>
+                <div class="audio-bar"></div>
+                <div class="audio-bar"></div>
+                <div class="audio-bar"></div>
+                <div class="audio-bar"></div>
+            </div>
+
+            <div class="audio-info">
+                <div class="song-title">💖 "Dad, You're My Hero" 💖</div>
+                <div class="song-artist">Performed by: Your Loving Child</div>
+                <div class="audio-time">
+                    <span id="currentTime">0:00</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <span id="totalTime">3:45</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Timeline -->
+    <section class="timeline-section">
+        <h2 class="section-title">Our Journey Together</h2>
+        <div class="timeline-container">
+            <div class="timeline-line"></div>
+
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>The Foundation of Love</h3>
+                    <p>Dad and Mom built a beautiful love story together, creating the foundation of our family. Their
+                        partnership taught us what true love, respect, and commitment look like in action.</p>
+                </div>
+                <div class="timeline-icon">💕</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>Growing Our Family</h3>
+                    <p>When my sister and I came into this world, Dad embraced fatherhood with open arms. He became our
+                        protector, our guide, and our biggest cheerleader in every adventure.</p>
+                </div>
+                <div class="timeline-icon">👨‍👩‍👧‍👦</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>Adventures & Wanderlust</h3>
+                    <p>Dad's love for traveling opened our eyes to the world. Every trip was a lesson in curiosity,
+                        courage, and the joy of discovering new places together as a family.</p>
+                </div>
+                <div class="timeline-icon">✈️</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>Legacy of Love</h3>
+                    <p>Today, I carry Dad's adventurous spirit and love for exploration. The wanderlust gene he passed
+                        down continues to inspire my own journeys and dreams.</p>
+                </div>
+                <div class="timeline-icon">🌟</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Holographic Message Card -->
+    <section class="message-section">
+        <h2 class="section-title">A Special Message</h2>
+        <div class="holographic-card">
+            <div class="card-inner">
+                <div class="card-front">
+                    <h3 class="card-title">For My Dad</h3>
+                    <div style="font-size: 4rem; margin: 2rem 0;">💌</div>
+                    <p>Hover to reveal my heart...</p>
+                </div>
+                <div class="card-back">
+                    <h3 class="card-title">Dear Dad</h3>
+                    <p class="card-message">
+                        Thank you for showing me that love comes in many forms - the love you share with Mom,
+                        the love you give to me and my sister, and the love you have for life's adventures.
+                        You've taught me that family is everything, and that the best journeys are the ones
+                        we take together. Your wanderlust lives on in me, and every new place I explore
+                        carries a piece of your adventurous heart.
+                    </p>
+                    <div class="card-signature">With endless love ❤️</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Special Message Box -->
+        <div class="special-message">
+            <h3>🎬 This Website is Made Just for You! 🎬</h3>
+            <p>Every animation, every transition, every sparkle was crafted with love.</p>
+            <p>This isn't just a website - it's a digital love letter celebrating you!</p>
+
+            <div class="message-features">
+                <div class="feature-item">
+                    <div class="feature-icon">✨</div>
+                    <div class="feature-text">Custom animations created with love</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📸</div>
+                    <div class="feature-text">Photo gallery of our family memories</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🎵</div>
+                    <div class="feature-text">Audio visualizer with music</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">✈️</div>
+                    <div class="feature-text">Celebrating our shared love for travel</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">❤️</div>
+                    <div class="feature-text">Made with endless love for you</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <h3>💖 Happy Father's Day 💖</h3>
+            <p>Made with love, code, and countless cups of coffee</p>
+            <p>For the man who taught me that love is the greatest adventure of all</p>
+            <div class="footer-hearts">
+                <span>💖</span>
+                <span>💕</span>
+                <span>💗</span>
+                <span>💝</span>
+                <span>❤️</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
