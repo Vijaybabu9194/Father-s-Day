@@ -806,6 +806,7 @@ body {
     min-height: 100vh;
 }
 
+/* Desktop Holographic Card Styles */
 .holographic-card {
     width: 500px;
     height: 420px;
@@ -952,7 +953,6 @@ body {
 .footer-content h3 {
     font-family: "Cinzel", serif;
     font-size: 2.5rem;
-    color: #ffd700;
 }
 
 .footer-content p {
@@ -1352,23 +1352,69 @@ body {
 
     /* HOLOGRAPHIC CARD - MOBILE - FIXED */
     .holographic-card {
-        width: 100%;
-        max-width: 350px;
-        height: 320px;
-        margin-bottom: 2rem;
+        width: 100% !important;
+        max-width: 350px !important;
+        height: 320px !important;
+        margin-bottom: 2rem !important;
     }
 
     .card-front,
     .card-back {
-        padding: 25px 20px;
+        padding: 25px 20px !important;
     }
 
     .card-title {
-        font-size: 1.4rem;
-        margin-bottom: 1rem;
+        font-size: 1.4rem !important;
+        margin-bottom: 1rem !important;
     }
 
     .card-message {
-        font-size: 0.85rem;
+        font-size: 0.85rem !important;
+        line-height: 1.4 !important;
+        padding: 0 5px !important;
+        margin-bottom: 1rem !important;
     }
+
+    .card-signature {
+        font-size: 0.95rem !important;
+        margin-top: 0.8rem !important;
+        padding: 0 5px !important;
+    }
+}
+
+/* SPECIAL MESSAGE - MOBILE */
+.special-message {
+    padding: 20px 15px;
+    margin: 0;
+    width: 100%;
+}
+
+.special-message h3 {
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+}
+
+.special-message p {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.message-features {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.feature-item {
+    padding: 12px;
+}
+
+.feature-icon {
+    font-size: 1.3rem;
+    margin-bottom: 8px;
+}
+
+.feature-text {
+    font-size: 0.8rem;
 }
