@@ -8,6 +8,7 @@ class CinematicFathersDayExperience {
         this.isPlaying = false
         this.currentTime = 0
         this.totalTime = 225 // 3:45 in seconds
+        this.hasUserInteracted = false // Add this line
         this.init()
     }
 
@@ -51,6 +52,18 @@ class CinematicFathersDayExperience {
         // Add touch event listeners for mobile
         if (this.isTouch) {
             this.setupTouchInteractions()
+        }
+
+        // Track user interaction for mobile autoplay
+        if (this.isMobile) {
+            const trackInteraction = () => {
+                this.hasUserInteracted = true
+                document.removeEventListener("touchstart", trackInteraction)
+                document.removeEventListener("click", trackInteraction)
+            }
+
+            document.addEventListener("touchstart", trackInteraction, { once: true, passive: true })
+            document.addEventListener("click", trackInteraction, { once: true })
         }
 
         // Add resize handler to maintain proper viewport
@@ -341,6 +354,7 @@ class CinematicFathersDayExperience {
         // Play button event
         if (this.playBtn) {
             this.playBtn.addEventListener("click", () => {
+                this.enableAutoplayAfterInteraction()
                 this.toggleAudio()
             })
         }
@@ -397,59 +411,150 @@ class CinematicFathersDayExperience {
     setupAudioAutoplay() {
         const audioSection = document.getElementById("audioSection")
 
-        if (audioSection && this.audio) {
-            const observer = new IntersectionObserver(
-                (entries) => {
-                    entries.forEach((entry) => {
-                        if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
-                            // Audio section is in view - try to autoplay
-                            setTimeout(() => {
-                                this.attemptAutoplay()
-                            }, 1000)
-                        } else if (!entry.isIntersecting && this.isPlaying) {
-                            // Audio section is out of view - pause the audio
-                            this.pauseAudio()
-                        }
-                    })
-                },
-                {
-                    threshold: [0, 0.3, 0.7],
-                    rootMargin: "-50px 0px -50px 0px",
-                },
-            )
+        if (!audioSection || !this.audio) return
 
-            observer.observe(audioSection)
+        // Create a more robust intersection observer
+        const observerOptions = {
+            root: null,
+            rootMargin: "0px",
+            threshold: [0, 0.1, 0.25, 0.5, 0.75, 1.0],
+        }
+
+        let isAudioSectionVisible = false
+        let autoplayAttempted = false
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                const wasVisible = isAudioSectionVisible
+                isAudioSectionVisible = entry.isIntersecting && entry.intersectionRatio > 0.25
+
+                // Audio section became visible
+                if (isAudioSectionVisible && !wasVisible) {
+                    console.log("Audio section entered - attempting autoplay")
+                    setTimeout(() => {
+                        this.attemptAutoplay()
+                    }, 300)
+                }
+
+                // Audio section became invisible
+                if (!isAudioSectionVisible && wasVisible && this.isPlaying) {
+                    console.log("Audio section left - stopping audio")
+                    this.pauseAudio()
+                    autoplayAttempted = false
+                }
+            })
+        }, observerOptions)
+
+        observer.observe(audioSection)
+
+        // Additional scroll-based fallback for mobile
+        let scrollTimeout
+        let lastScrollTime = 0
+
+        const checkVisibilityOnScroll = () => {
+            const now = Date.now()
+            if (now - lastScrollTime < 100) return // Throttle
+            lastScrollTime = now
+
+            const rect = audioSection.getBoundingClientRect()
+            const windowHeight = window.innerHeight
+
+            // Calculate visibility percentage
+            const visibleHeight = Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0)
+            const sectionHeight = rect.height
+            const visibilityRatio = Math.max(0, visibleHeight / sectionHeight)
+
+            const wasVisible = isAudioSectionVisible
+            isAudioSectionVisible = visibilityRatio > 0.25
+
+            // Section became visible
+            if (isAudioSectionVisible && !wasVisible) {
+                console.log("Scroll detected: Audio section visible")
+                clearTimeout(scrollTimeout)
+                scrollTimeout = setTimeout(() => {
+                    this.attemptAutoplay()
+                }, 200)
+            }
+
+            // Section became invisible
+            if (!isAudioSectionVisible && wasVisible && this.isPlaying) {
+                console.log("Scroll detected: Audio section hidden")
+                this.pauseAudio()
+            }
+        }
+
+        // Add scroll listener with throttling
+        window.addEventListener("scroll", checkVisibilityOnScroll, { passive: true })
+
+        // Add touch event listeners for mobile
+        if (this.isMobile) {
+            window.addEventListener(
+                "touchend",
+                () => {
+                    setTimeout(checkVisibilityOnScroll, 100)
+                },
+                { passive: true },
+            )
         }
     }
 
     async attemptAutoplay() {
-        if (this.audio && !this.isPlaying) {
-            try {
-                await this.audio.play()
-                this.isPlaying = true
-                this.updatePlayButton()
-                this.animateAudioBars()
-            } catch (error) {
-                console.log("Autoplay prevented by browser:", error)
-                // Show a visual indicator that user can click to play
-                this.showAutoplayPrompt()
+        if (!this.audio || this.isPlaying) return
+
+        try {
+            // Reset audio to beginning if it ended
+            if (this.audio.ended) {
+                this.audio.currentTime = 0
             }
+
+            console.log("Attempting to play audio...")
+            await this.audio.play()
+            this.isPlaying = true
+            this.updatePlayButton()
+            this.animateAudioBars()
+            console.log("Audio started successfully")
+
+            // Remove autoplay prompt styling
+            if (this.playBtn) {
+                this.playBtn.style.animation = "none"
+                this.playBtn.style.boxShadow = "0 10px 30px rgba(255, 215, 0, 0.4)"
+            }
+        } catch (error) {
+            console.log("Autoplay prevented:", error.message)
+            this.showAutoplayPrompt()
         }
     }
 
     pauseAudio() {
-        if (this.audio && this.isPlaying) {
-            this.audio.pause()
-            this.isPlaying = false
-            this.updatePlayButton()
-            this.stopAudioBars()
-        }
+        if (!this.audio || !this.isPlaying) return
+
+        console.log("Pausing audio...")
+        this.audio.pause()
+        this.isPlaying = false
+        this.updatePlayButton()
+        this.stopAudioBars()
+        console.log("Audio paused")
     }
 
-    showAutoplayPrompt() {
-        if (this.playBtn) {
-            this.playBtn.style.animation = "pulse 2s infinite"
-            this.playBtn.style.boxShadow = "0 0 20px rgba(255, 215, 0, 0.8)"
+    // Force enable autoplay after user interaction
+    enableAutoplayAfterInteraction() {
+        if (this.isMobile && !this.hasUserInteracted) {
+            this.hasUserInteracted = true
+
+            // Check if audio section is currently visible and try to play
+            const audioSection = document.getElementById("audioSection")
+            if (audioSection) {
+                const rect = audioSection.getBoundingClientRect()
+                const windowHeight = window.innerHeight
+                const visibleHeight = Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0)
+                const visibilityRatio = Math.max(0, visibleHeight / rect.height)
+
+                if (visibilityRatio > 0.25 && !this.isPlaying) {
+                    setTimeout(() => {
+                        this.attemptAutoplay()
+                    }, 100)
+                }
+            }
         }
     }
 
