@@ -325,74 +325,201 @@ class CinematicFathersDayExperience {
     }
 
     setupAudioPlayer() {
-        const playBtn = document.getElementById("playBtn")
-        const volumeSlider = document.getElementById("volumeSlider")
-        const progressFill = document.getElementById("progressFill")
-        const currentTimeEl = document.getElementById("currentTime")
-        const totalTimeEl = document.getElementById("totalTime")
+        this.audio = document.getElementById("realAudio")
+        this.playBtn = document.getElementById("playBtn")
+        this.volumeSlider = document.getElementById("volumeSlider")
+        this.progressFill = document.getElementById("progressFill")
+        this.progressBar = document.getElementById("progressBar")
+        this.currentTimeEl = document.getElementById("currentTime")
+        this.totalTimeEl = document.getElementById("totalTime")
 
-        if (playBtn) {
-            playBtn.addEventListener("click", () => {
+        // Set initial volume
+        if (this.audio) {
+            this.audio.volume = 0.7
+        }
+
+        // Play button event
+        if (this.playBtn) {
+            this.playBtn.addEventListener("click", () => {
                 this.toggleAudio()
             })
         }
 
-        if (volumeSlider) {
-            volumeSlider.addEventListener("input", (e) => {
-                // Volume control simulation
-                console.log("Volume:", e.target.value)
+        // Volume control
+        if (this.volumeSlider) {
+            this.volumeSlider.addEventListener("input", (e) => {
+                if (this.audio) {
+                    this.audio.volume = e.target.value / 100
+                }
             })
         }
 
-        // Simulate audio progress
-        this.startAudioProgress()
+        // Progress bar click
+        if (this.progressBar) {
+            this.progressBar.addEventListener("click", (e) => {
+                if (this.audio && this.audio.duration) {
+                    const rect = this.progressBar.getBoundingClientRect()
+                    const clickX = e.clientX - rect.left
+                    const width = rect.width
+                    const clickTime = (clickX / width) * this.audio.duration
+                    this.audio.currentTime = clickTime
+                }
+            })
+        }
+
+        // Audio event listeners
+        if (this.audio) {
+            this.audio.addEventListener("loadedmetadata", () => {
+                this.updateTotalTime()
+            })
+
+            this.audio.addEventListener("timeupdate", () => {
+                this.updateProgress()
+            })
+
+            this.audio.addEventListener("ended", () => {
+                this.resetAudioPlayer()
+            })
+
+            this.audio.addEventListener("play", () => {
+                this.animateAudioBars()
+            })
+
+            this.audio.addEventListener("pause", () => {
+                this.stopAudioBars()
+            })
+        }
+
+        // Setup intersection observer for autoplay
+        this.setupAudioAutoplay()
     }
 
-    toggleAudio() {
-        this.isPlaying = !this.isPlaying
-        const playBtn = document.getElementById("playBtn")
-        const playIcon = playBtn.querySelector(".play-icon")
-        const playText = playBtn.querySelector(".play-text")
+    setupAudioAutoplay() {
+        const audioSection = document.getElementById("audioSection")
 
-        if (this.isPlaying) {
-            playIcon.textContent = "⏸️"
-            playText.textContent = "Pause Song"
-            this.animateAudioBars()
-        } else {
-            playIcon.textContent = "▶️"
-            playText.textContent = "Play Our Song"
+        if (audioSection && this.audio) {
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
+                            // Audio section is in view - try to autoplay
+                            setTimeout(() => {
+                                this.attemptAutoplay()
+                            }, 1000)
+                        } else if (!entry.isIntersecting && this.isPlaying) {
+                            // Audio section is out of view - pause the audio
+                            this.pauseAudio()
+                        }
+                    })
+                },
+                {
+                    threshold: [0, 0.3, 0.7],
+                    rootMargin: "-50px 0px -50px 0px",
+                },
+            )
+
+            observer.observe(audioSection)
+        }
+    }
+
+    async attemptAutoplay() {
+        if (this.audio && !this.isPlaying) {
+            try {
+                await this.audio.play()
+                this.isPlaying = true
+                this.updatePlayButton()
+                this.animateAudioBars()
+            } catch (error) {
+                console.log("Autoplay prevented by browser:", error)
+                // Show a visual indicator that user can click to play
+                this.showAutoplayPrompt()
+            }
+        }
+    }
+
+    pauseAudio() {
+        if (this.audio && this.isPlaying) {
+            this.audio.pause()
+            this.isPlaying = false
+            this.updatePlayButton()
             this.stopAudioBars()
         }
     }
 
-    startAudioProgress() {
-        setInterval(() => {
-            if (this.isPlaying && this.currentTime < this.totalTime) {
-                this.currentTime += 1
-                this.updateAudioDisplay()
-            }
-        }, 1000)
+    showAutoplayPrompt() {
+        if (this.playBtn) {
+            this.playBtn.style.animation = "pulse 2s infinite"
+            this.playBtn.style.boxShadow = "0 0 20px rgba(255, 215, 0, 0.8)"
+        }
     }
 
-    updateAudioDisplay() {
-        const currentTimeEl = document.getElementById("currentTime")
-        const progressFill = document.getElementById("progressFill")
+    toggleAudio() {
+        if (!this.audio) return
 
-        if (currentTimeEl) {
-            const minutes = Math.floor(this.currentTime / 60)
-            const seconds = this.currentTime % 60
-            currentTimeEl.textContent = `${minutes}:${seconds.toString().padStart(2, "0")}`
+        if (this.audio.paused) {
+            this.audio.play()
+            this.isPlaying = true
+        } else {
+            this.audio.pause()
+            this.isPlaying = false
         }
 
-        if (progressFill) {
-            const progress = (this.currentTime / this.totalTime) * 100
-            progressFill.style.width = `${progress}%`
+        this.updatePlayButton()
+    }
+
+    updatePlayButton() {
+        if (!this.playBtn) return
+
+        const playIcon = this.playBtn.querySelector(".play-icon")
+        const playText = this.playBtn.querySelector(".play-text")
+
+        if (this.isPlaying) {
+            playIcon.textContent = "⏸️"
+            playText.textContent = "Pause Song"
+            this.playBtn.style.animation = "none"
+            this.playBtn.style.boxShadow = "0 10px 30px rgba(255, 215, 0, 0.4)"
+        } else {
+            playIcon.textContent = "▶️"
+            playText.textContent = "Play Our Song"
         }
+    }
+
+    updateProgress() {
+        if (!this.audio || !this.progressFill || !this.currentTimeEl) return
+
+        const currentTime = this.audio.currentTime
+        const duration = this.audio.duration
+
+        if (duration) {
+            const progressPercent = (currentTime / duration) * 100
+            this.progressFill.style.width = `${progressPercent}%`
+        }
+
+        this.currentTimeEl.textContent = this.formatTime(currentTime)
+    }
+
+    updateTotalTime() {
+        if (!this.audio || !this.totalTimeEl) return
+        this.totalTimeEl.textContent = this.formatTime(this.audio.duration)
+    }
+
+    formatTime(seconds) {
+        if (isNaN(seconds)) return "0:00"
+
+        const minutes = Math.floor(seconds / 60)
+        const remainingSeconds = Math.floor(seconds % 60)
+        return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
+    }
+
+    resetAudioPlayer() {
+        this.isPlaying = false
+        this.updatePlayButton()
+        this.stopAudioBars()
     }
 
     animateAudioBars() {
         const bars = document.querySelectorAll(".audio-bar")
-        bars.forEach((bar, index) => {
+        bars.forEach((bar) => {
             bar.style.animationPlayState = "running"
         })
     }

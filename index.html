@@ -34,7 +34,7 @@
     <section class="hero-cinematic">
         <div class="hero-bg"></div>
         <div class="hero-content">
-            <h1 class="hero-title"> DAD</h1>
+            <h1 class="hero-title">DAD</h1>
             <p class="hero-subtitle">My Hero, My Inspiration, My Everything</p>
             <button class="hero-cta" id="beginJourney">Begin Our Journey</button>
         </div>
@@ -46,7 +46,7 @@
         <div class="photo-grid">
 
             <div class="photo-frame">
-                <img src="/Images/MomDad.jpeg" alt="Dad and Mom together">
+                <img src="Images/MomDad.jpeg" alt="Dad and Mom together">
                 <div class="photo-overlay">
                     <div class="photo-caption">Love Story of a Lifetime</div>
                     <div class="photo-description">Dad and Mom - a journey of love, partnership, and building a
@@ -55,7 +55,7 @@
             </div>
 
             <div class="photo-frame">
-                <img src="/Images/Three.jpeg" alt="Dad with me and my sister">
+                <img src="Images/Three.jpeg" alt="Dad with me and my sister">
                 <div class="photo-overlay">
                     <div class="photo-caption">Our Beautiful Family</div>
                     <div class="photo-description">Dad, me, and my sister - the three musketeers who share endless
@@ -102,11 +102,18 @@
     </section>
 
     <!-- Audio Visualizer Section -->
-    <section class="audio-section">
+    <section class="audio-section" id="audioSection">
         <h2 class="section-title">A Song for Dad</h2>
         <div class="audio-player">
             <h3 class="audio-title">🎵 The Soundtrack of Our Beautiful Journey 🎵</h3>
             <p class="audio-subtitle">Every memory has its melody, every moment its rhythm</p>
+
+            <!-- Real Audio Element -->
+            <audio id="realAudio" preload="auto" loop>
+                <source src="Images/Daddyaudio.ogg" type="audio/mpeg">
+                <source src="your-song.ogg" type="audio/ogg">
+                Your browser does not support the audio element.
+            </audio>
 
             <div class="audio-controls">
                 <button class="play-btn" id="playBtn">
@@ -143,14 +150,14 @@
             </div>
 
             <div class="audio-info">
-                <div class="song-title">💖 "Dad, You're My Hero" 💖</div>
-                <div class="song-artist">Performed by: Your Loving Child</div>
+                <div class="song-title">💖 Nanna Nuvvu Naa Pranam 💖</div>
+                <div class="song-artist">A Beautiful Telugu Song for Dad</div>
                 <div class="audio-time">
                     <span id="currentTime">0:00</span>
-                    <div class="progress-bar">
+                    <div class="progress-bar" id="progressBar">
                         <div class="progress-fill" id="progressFill"></div>
                     </div>
-                    <span id="totalTime">3:45</span>
+                    <span id="totalTime">0:00</span>
                 </div>
             </div>
         </div>

@@ -638,20 +638,46 @@ body {
     color: rgba(255, 255, 255, 0.7);
 }
 
+/* Enhanced Progress Bar */
 .progress-bar {
     width: 200px;
     height: 4px;
     background: rgba(255, 255, 255, 0.2);
     border-radius: 2px;
     overflow: hidden;
+    cursor: pointer;
+    transition: height 0.2s ease;
+}
+
+.progress-bar:hover {
+    height: 6px;
 }
 
 .progress-fill {
     height: 100%;
     background: linear-gradient(90deg, #ffd700, #ff6b6b);
-    width: 45%;
     border-radius: 2px;
-    animation: progressMove 3s ease-in-out infinite;
+    transition: width 0.1s ease;
+}
+
+/* Autoplay Prompt Animation */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Audio Element Styling */
+#realAudio {
+    display: none;
 }
 
 @keyframes progressMove {
@@ -1415,8 +1441,4 @@ body {
 .feature-icon {
     font-size: 1.3rem;
     margin-bottom: 8px;
-}
-
-.feature-text {
-    font-size: 0.8rem;
 }
